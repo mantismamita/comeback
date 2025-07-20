@@ -4,21 +4,21 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ### Prerequisites
 - Python 3.8+ (tested with Python 3.12)
-- Node.js 18+ 
-- npm or yarn
+- Node.js 18+ (tested with Node.js 22)
+- npm, pnpm, yarn, or bun (for package management)
 
 ### Installation
 
 1. Clone the repository:
-   ```bash
-   git clone https://github.com/yourusername/your-project.git
-   cd your-project
-   ```
+  ```bash
+   git clone https://github.com/mantismamita/comeback.git
+   cd comeback
+  ```
 
 2. Install Python dependencies:
-   ```bash
+  ```bash
    pip install -r requirements.txt
-   ```
+  ```
 
 3. Install Node.js dependencies:
   ```bash
@@ -28,28 +28,19 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 4. Set up environment variables:
   ```bash
   cp .env.example .env
+  # Edit .env with your Garmin Connect credentials
   ```
 
-5. Edit .env with your Garmin Connect credentials
-
-6. Run the development server:
+5. Run the development server:
   ```bash
   npm run dev
+  # or
+  yarn dev
+  # or
+  pnpm dev
+  # or
+  bun dev
   ```
-
-## Getting Started
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
