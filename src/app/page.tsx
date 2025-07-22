@@ -1,6 +1,16 @@
 import Image from "next/image";
+import getData from "./getData";
+import Activity from "./components/Activity";
 
-export default function Home() {
+export const metadata = {
+  title: "Comeback",
+  description: "Compare peak to current performance and determine target metrics for improvement.",
+};
+
+
+export default async function Home() {
+  const data = await getData();
+
   return (
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
@@ -24,6 +34,25 @@ export default function Home() {
           </li>
         </ol>
 
+        {data && data.length > 0 ? (
+          <div className="flex flex-col gap-4">
+            <h2 className="text-lg font-semibold">Activities</h2>
+            <ul className="list-disc pl-5">
+            {data.map((activity) => {
+              const { activityId, activityName } = activity;
+              return (
+                <li key={activityId} className="text-sm">
+                  <Activity activity={activity} />
+                  <span>{activityName}</span>
+                </li>
+              );
+            })}
+            </ul>
+          </div>
+        ) : (
+          <p className="text-red-500">No data available.</p>
+        )}
+
         <div className="flex gap-4 items-center flex-col sm:flex-row">
           <a
             className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
@@ -31,13 +60,6 @@ export default function Home() {
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
             Deploy now
           </a>
           <a
