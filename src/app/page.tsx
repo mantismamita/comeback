@@ -36,14 +36,13 @@ export default async function Home() {
 
         {data && data.length > 0 ? (
           <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">Activities</h2>
-            <ul className="list-disc pl-5">
+            <h2 className="text-lg font-semibold">Recent Activities</h2>
+            <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
             {data.map((activity) => {
-              const { activityId, activityName } = activity;
+              const { activityId } = activity;
               return (
                 <li key={activityId} className="text-sm">
                   <Activity activity={activity} />
-                  <span>{activityName}</span>
                 </li>
               );
             })}
