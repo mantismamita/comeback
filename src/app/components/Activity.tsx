@@ -1,6 +1,6 @@
 import type { Activity } from "@/types/Activity";
 import { formatDate } from "@/utils/date";
-import { textToEmoji } from "@/utils/textToEmoji";
+import { textToEmoji } from "@/utils/activityTypes";
 import { roundToKm, roundToHoursMinutes } from "@/utils/units";
 
 export default function ActivityComponent({ activity }: { activity: Activity }) {

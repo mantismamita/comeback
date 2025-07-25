@@ -1,12 +1,13 @@
-import Image from "next/image";
-import getData from "./getData";
-import Activity from "./components/Activity";
+import Image from 'next/image';
+import getData from './getData';
+import Activity from './components/Activity';
+import ActivityForm from './components/ActivityForm';
 
 export const metadata = {
-  title: "Comeback",
-  description: "Compare peak to current performance and determine target metrics for improvement.",
+  title: 'Comeback',
+  description:
+    'Compare peak to current performance and determine target metrics for improvement.',
 };
-
 
 export default async function Home() {
   const data = await getData();
@@ -15,15 +16,15 @@ export default async function Home() {
     <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex items-center center">
-        <Image
-          className="dark:invert"
-          src="/arrow.svg"
-          alt="comeback logo"
-          width={50}
-          height={50}
-          priority
-        />
-        <h1 className="text-3xl flex">Comeback</h1>
+          <Image
+            className="dark:invert"
+            src="/arrow.svg"
+            alt="comeback logo"
+            width={50}
+            height={50}
+            priority
+          />
+          <h1 className="text-3xl flex">Comeback</h1>
         </div>
         <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
           <li className="mb-2 tracking-[-.01em]">
@@ -35,18 +36,25 @@ export default async function Home() {
         </ol>
 
         {data && data.length > 0 ? (
-          <div className="flex flex-col gap-4">
-            <h2 className="text-lg font-semibold">Recent Activities</h2>
-            <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {data.map((activity) => {
-              const { activityId } = activity;
-              return (
-                <li key={activityId} className="text-sm">
-                  <Activity activity={activity} />
-                </li>
-              );
-            })}
-            </ul>
+          <div>
+            <div className="flex flex-col gap-4">
+              <h2 className="text-lg font-semibold">Recent Activities</h2>
+              <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+                {data.map((activity) => {
+                  const { activityId } = activity;
+                  return (
+                    <li key={activityId} className="text-sm">
+                      <Activity activity={activity} />
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+
+            <div>
+              Peak Activity:
+              <ActivityForm activity={{}} />
+            </div>
           </div>
         ) : (
           <p className="text-red-500">No data available.</p>
