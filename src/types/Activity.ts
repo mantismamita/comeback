@@ -66,7 +66,7 @@ export interface Activity {
   maxElevation?: number;
   maxDoubleCadence?: number;
   summarizedDiveInfo?: {
-    summarizedDiveGases: any[];
+    summarizedDiveGases: unknown[];
   };
   maxVerticalSpeed?: number;
   manufacturer?: string;
