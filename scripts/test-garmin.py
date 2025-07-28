@@ -2,12 +2,15 @@ from garminconnect import Garmin
 import json
 import os
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+load_dotenv()  # Load variables from .env
+
+username = os.getenv("GARMIN_USERNAME")
+password = os.getenv("GARMIN_PASSWORD")
 
 # Test connection
 try:
-    username = input("Enter your Garmin username: ")
-    password = input("Enter your Garmin password: ")
-    
     client = Garmin(username, password)
     client.login()
     

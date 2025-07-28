@@ -1,37 +1,68 @@
 'use client';
-
-import type { Activity } from '@/types/Activity';
+import { useState, useRef, useEffect } from 'react';
 import { textToEmoji, typeMap } from '@/utils/activityTypes';
-import { useState } from 'react';
+import type { Activity } from '@/types/Activity';
 
-export default function ActivityForm(activity: Activity | {} = {}) {
-  const [selectedType, setSelectedType] = useState(
-    activity?.activityType?.typeKey || ''
-  );
+export default function ActivityForm({
+  activityType,
+}: Partial<Pick<Activity, 'activityType'>> = {}) {
+  const [selectedType, setSelectedType] = useState(activityType?.typeKey || '');
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const listRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (listRef.current && !listRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    }
+    if (open) document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, [open]);
+
+  function handleKeyDown(e: React.KeyboardEvent) {
+    if (
+      !open &&
+      (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')
+    ) {
+      setOpen(true);
+      e.preventDefault();
+      return;
+    }
+    if (open) {
+      if (e.key === 'ArrowDown') {
+        setActiveIndex((i) => (i + 1) % typeMap.length);
+        e.preventDefault();
+      } else if (e.key === 'ArrowUp') {
+        setActiveIndex((i) => (i - 1 + typeMap.length) % typeMap.length);
+        e.preventDefault();
+      } else if (e.key === 'Enter' || e.key === ' ') {
+        setSelectedType(typeMap[activeIndex].typeKey);
+        setOpen(false);
+        e.preventDefault();
+      } else if (e.key === 'Escape') {
+        setOpen(false);
+        e.preventDefault();
+      }
+    }
+  }
+
+  useEffect(() => {
+    if (open && listRef.current) {
+      const activeOption = listRef.current.querySelector(
+        '[aria-selected="true"]'
+      );
+      if (activeOption)
+        (activeOption as HTMLElement).scrollIntoView({ block: 'nearest' });
+    }
+  }, [open, activeIndex]);
 
   const t = typeMap.filter((type) => type.typeKey === selectedType);
 
   return (
     <form className="activity-form">
       <div className="form-group">
-        {/* <label
-          className="block text-sm/6 font-medium text-gray-100"
-          htmlFor="activityType"
-        >
-          Activity Type
-        </label> */}
-        {/* <select
-          id="activityType"
-          name="activityType"
-          defaultValue={activity?.activityType?.typeKey || ''}
-          className=""
-        >
-          {getActivityTypesList().map((type) => (
-            <option key={type.typeKey} value={type.typeKey}>
-              {type.typeName}
-            </option>
-          ))}
-        </select> */}
         <label
           id="listbox-label"
           className="block text-sm/6 font-medium text-gray-100"
@@ -41,10 +72,14 @@ export default function ActivityForm(activity: Activity | {} = {}) {
         <div className="relative mt-2">
           <button
             type="button"
-            aria-expanded="true"
             aria-haspopup="listbox"
+            aria-expanded={open}
             aria-labelledby="listbox-label"
-            className="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pr-2 pl-3 text-left text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"
+            aria-controls="activity-type-listbox"
+            className="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pr-2 pl-3 text-left text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mb-8"
+            onClick={() => setOpen((v) => !v)}
+            onKeyDown={handleKeyDown}
+            tabIndex={0}
           >
             <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
               <span role="img" className="size-5 shrink-0 rounded-full">
@@ -64,47 +99,62 @@ export default function ActivityForm(activity: Activity | {} = {}) {
               <use href="#double_arrow" />
             </svg>
           </button>
-          <ul
-            role="listbox"
-            tabIndex={-1}
-            aria-labelledby="listbox-label"
-            aria-activedescendant="listbox-option-3"
-            className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm"
-          >
-            {typeMap.map((type) => (
-              <li
-                id="listbox-option-0"
-                role="option"
-                className="relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none"
-                key={type.typeKey}
-                onClick={() => setSelectedType(type.typeKey)}
-              >
-                <div className="flex items-center">
-                  {textToEmoji(type.typeKey)}
-                  <span className="ml-3 block truncate font-normal">
-                    {type.typeName}
-                  </span>
-                </div>
-                {selectedType === type.typeKey && (
-                  <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
-                    <svg
-                      viewBox="0 0 20 20"
-                      fill="currentColor"
-                      data-slot="icon"
-                      aria-hidden="true"
-                      className="size-5"
-                    >
-                      <use href="#checkmark" />
-                    </svg>
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
+          {open && (
+            <ul
+              id="activity-type-listbox"
+              role="listbox"
+              tabIndex={-1}
+              aria-labelledby="listbox-label"
+              ref={listRef}
+              className="absolute z-10 mt-1 max-h-56 w-full overflow-auto rounded-md bg-white py-1 text-base shadow-lg ring-1 ring-black/5 focus:outline-hidden sm:text-sm"
+            >
+              {typeMap.map((type, idx) => (
+                <li
+                  id={`listbox-option-${idx}`}
+                  role="option"
+                  aria-selected={selectedType === type.typeKey}
+                  className={`relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none ${
+                    idx === activeIndex ? 'bg-indigo-100' : ''
+                  }`}
+                  key={type.typeKey}
+                  onClick={() => {
+                    setSelectedType(type.typeKey);
+                    setOpen(false);
+                  }}
+                  onMouseEnter={() => setActiveIndex(idx)}
+                >
+                  <div className="flex items-center">
+                    {textToEmoji(type.typeKey)}
+                    <span className="ml-3 block truncate font-normal">
+                      {type.typeName}
+                    </span>
+                  </div>
+                  {selectedType === type.typeKey && (
+                    <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
+                      <svg
+                        viewBox="0 0 20 20"
+                        fill="currentColor"
+                        data-slot="icon"
+                        aria-hidden="true"
+                        className="size-5"
+                      >
+                        <use href="#checkmark" />
+                      </svg>
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
-
-      <button type="submit">Save Activity</button>
+      <input type="hidden" name="activityType" value={selectedType} />
+      <button
+        className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+        type="submit"
+      >
+        Save Activity
+      </button>
     </form>
   );
 }

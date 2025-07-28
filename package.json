@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "sync-data": "python scripts/sync-garmin.py",
+    "test-data": "python scripts/test-garmin.py",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
