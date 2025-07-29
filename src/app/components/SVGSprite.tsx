@@ -1,4 +1,4 @@
-export default function () {
+export default function SVGSprite() {
   return (
     <svg
       id="svgSprite"

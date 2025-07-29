@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "sync-data": "python scripts/sync-garmin.py",
-    "test-data": "python scripts/test-garmin.py",
+    "sync-data": "python scripts/sync_garmin.py",
+    "test-data": "python scripts/test_garmin.py",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",

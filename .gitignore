@@ -48,11 +48,12 @@ yarn-error.log*
 next-env.d.ts
 
 # userdata
-data/
-*.json
+data/*
+!data/mock-data.json
 garmin-data.json
 
 # Python
 __pycache__/
 *.pyc
 scripts/__pycache__/
+scripts/anonymize_garmin.py

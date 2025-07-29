@@ -61,11 +61,11 @@ export default function ActivityForm({
   const t = typeMap.filter((type) => type.typeKey === selectedType);
 
   return (
-    <form className="activity-form">
-      <div className="form-group">
+    <form className="activity-form flex flex-wrap gap-6" method="post">
+      <div className="form-group w-1/3">
         <label
           id="listbox-label"
-          className="block text-sm/6 font-medium text-gray-100"
+          className="block text-sm font-medium text-gray-100 "
         >
           Activity type
         </label>
@@ -76,7 +76,7 @@ export default function ActivityForm({
             aria-expanded={open}
             aria-labelledby="listbox-label"
             aria-controls="activity-type-listbox"
-            className="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.5 pr-2 pl-3 text-left text-gray-900 outline-1 -outline-offset-1 outline-gray-300 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6 mb-8"
+            className="grid w-full cursor-default grid-cols-1 rounded-md bg-white py-1.75 pr-2 pl-3 text-left text-gray-900 outline-gray-300 sm:text-sm/6"
             onClick={() => setOpen((v) => !v)}
             onKeyDown={handleKeyDown}
             tabIndex={0}
@@ -148,13 +148,31 @@ export default function ActivityForm({
           )}
         </div>
       </div>
+      <div className="form-group w-1/3">
+        <label
+          htmlFor="activity-date"
+          className="block text-sm font-medium text-gray-100 mb-2"
+        >
+          Activity date
+        </label>
+        <input
+          type="date"
+          id="activity-date"
+          name="activityDate"
+          className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+          required
+        />
+      </div>
+
       <input type="hidden" name="activityType" value={selectedType} />
-      <button
-        className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-        type="submit"
-      >
-        Save Activity
-      </button>
+      <div className="form-group w-full">
+        <button
+          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+          type="submit"
+        >
+          Save Activity
+        </button>
+      </div>
     </form>
   );
 }
