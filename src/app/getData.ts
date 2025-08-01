@@ -27,3 +27,13 @@ export default async function getData() {
   const jsonData: Activity[] = await JSON.parse(data);
   return jsonData;
 }
+
+export async function getDateActivity(
+  activityType: Activity['activityType'],
+  activityDate: string
+) {
+  const jsonData: Activity[] = await getData();
+  return jsonData.filter(
+    (activity) => activity.activityType.typeKey === activityType
+  );
+}
