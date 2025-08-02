@@ -11,39 +11,31 @@ export type ActionResponse = {
   error?: string;
 };
 export async function submitActivity(
-  formData: FormData
+  activityType: Activity['activityType']['typeKey'],
+  activityDate: string
 ): Promise<ActionResponse> {
   try {
     // Simulate network delay for loading state
     await new Promise((resolve) => setTimeout(resolve, 700));
 
-    const data: {
-      activityType: Activity['activityType']['typeKey'];
-      activityDate: string;
-    } = {
-      activityType: formData.get(
-        'activityType'
-      ) as Activity['activityType']['typeKey'],
-      activityDate: formData.get('activityDate') as string,
-    };
-
     // Check security (zod? validation, etc.)
-    if (!data.activityType || !data.activityDate) {
+    if (!activityType || !activityDate) {
+      console.warn('Activity type or date is missing:', {
+        activityType,
+        activityDate,
+      });
       return {
         success: false,
         message: 'Activity type and date are required',
         errors: {
-          activityType: !data.activityType ? ['Activity type is required'] : [],
-          activityDate: !data.activityDate ? ['Activity date is required'] : [],
+          activityType: !activityType ? ['Activity type is required'] : [],
+          activityDate: !activityDate ? ['Activity date is required'] : [],
         },
       };
     }
 
-    console.log('Submitting...', data.activityType, data.activityDate);
-    const activities = await getDateActivity(
-      data.activityType,
-      data.activityDate
-    );
+    console.log('Submitting...', activityType, activityDate);
+    const activities = await getDateActivity(activityType, activityDate);
     console.log('Submitting activity:', activities[0].activityName);
 
     return {

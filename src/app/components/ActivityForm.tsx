@@ -2,14 +2,18 @@
 import { useState, useRef, useEffect } from 'react';
 import { textToEmoji, typeMap } from '@/utils/activityTypes';
 import type { Activity } from '@/types/Activity';
-import { submitActivity } from '../actions/activity';
 
 export default function ActivityForm({
-  selectedActivityType,
-  setSelectedActivityType,
+  selectedActivity,
+  setSelectedActivity,
+  onActivityFound,
 }: Partial<Pick<Activity, 'activityType'>> = {}) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedType, setSelectedType] = useState(
+    selectedActivity?.activityType?.typeKey || ''
+  );
+  const [activityDate, setActivityDate] = useState('');
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -39,7 +43,7 @@ export default function ActivityForm({
         setActiveIndex((i) => (i - 1 + typeMap.length) % typeMap.length);
         e.preventDefault();
       } else if (e.key === 'Enter' || e.key === ' ') {
-        setSelectedActivityType(typeMap[activeIndex].typeKey);
+        setSelectedActivity(typeMap[activeIndex].typeKey);
         setOpen(false);
         e.preventDefault();
       } else if (e.key === 'Escape') {
@@ -59,16 +63,15 @@ export default function ActivityForm({
     }
   }, [open, activeIndex]);
 
-  const t = typeMap.filter((type) => type.typeKey === selectedActivityType);
-
-  console.log('selectedActivityType>>', selectedActivityType);
+  const t = typeMap.filter((type) => type.typeKey === selectedType);
 
   return (
     <form
       className="activity-form flex flex-wrap gap-6"
-      onSubmit={(event) => {
+      onSubmit={async (event) => {
         event.preventDefault();
-        submitActivity(new FormData(event.target as HTMLFormElement));
+
+        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
       }}
     >
       <div className="form-group w-1/3">
@@ -92,7 +95,7 @@ export default function ActivityForm({
           >
             <span className="col-start-1 row-start-1 flex items-center gap-3 pr-6">
               <span role="img" className="size-5 shrink-0 rounded-full">
-                {textToEmoji(selectedActivityType)}
+                {textToEmoji(selectedType)}
               </span>
               <span className="block truncate">
                 {t[0]?.typeName || 'Choose an Activity Type'}
@@ -121,13 +124,13 @@ export default function ActivityForm({
                 <li
                   id={`listbox-option-${idx}`}
                   role="option"
-                  aria-selected={selectedActivityType === type.typeKey}
+                  aria-selected={selectedActivity === type.typeKey}
                   className={`relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none ${
                     idx === activeIndex ? 'bg-indigo-100' : ''
                   }`}
                   key={type.typeKey}
                   onClick={() => {
-                    setSelectedActivityType(type.typeKey);
+                    setSelectedType(type.typeKey);
                     setOpen(false);
                   }}
                   onMouseEnter={() => setActiveIndex(idx)}
@@ -138,7 +141,7 @@ export default function ActivityForm({
                       {type.typeName}
                     </span>
                   </div>
-                  {selectedActivityType === type.typeKey && (
+                  {selectedType === type.typeKey && (
                     <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-indigo-600">
                       <svg
                         viewBox="0 0 20 20"
@@ -170,10 +173,15 @@ export default function ActivityForm({
           name="activityDate"
           className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           required
+          value={activityDate ?? ''}
+          onChange={(e) => setActivityDate(e.target.value)}
+          onFocus={() => setOpen(false)}
+          onBlur={() => setOpen(false)}
+          autoComplete="off"
         />
       </div>
 
-      <input type="hidden" name="activityType" value={selectedActivityType} />
+      <input type="hidden" name="activityType" value={selectedType} />
       <div className="form-group w-full">
         <button
           className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
