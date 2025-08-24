@@ -15,6 +15,7 @@ export default function ActivityInteraction() {
     date: string
   ) {
     const response = await submitActivity(typeKey, date);
+    console.log('response', response, date, typeKey);
     if (response.success && response.results?.length) {
       setSelectedActivity(response.results[0]);
     } else {
@@ -22,7 +23,7 @@ export default function ActivityInteraction() {
         'Error finding activity:',
         response.error || response.message
       );
-      setSelectedActivity(null);
+      setSelectedActivity({} as Activity); // Reset
     }
   }
 
@@ -30,10 +31,11 @@ export default function ActivityInteraction() {
     <>
       <ActivityForm
         selectedActivity={selectedActivity}
-        setSelectedActivity={setSelectedActivity}
         onActivityFound={onActivityFound}
       />
-      <SelectedActivityDisplay activity={selectedActivity} />
+      {selectedActivity && (
+        <SelectedActivityDisplay activity={selectedActivity} />
+      )}
     </>
   );
 }

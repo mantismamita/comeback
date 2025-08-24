@@ -5,9 +5,14 @@ import type { Activity } from '@/types/Activity';
 
 export default function ActivityForm({
   selectedActivity,
-  setSelectedActivity,
   onActivityFound,
-}: Partial<Pick<Activity, 'activityType'>> = {}) {
+}: {
+  selectedActivity: Pick<Activity, 'activityType'> | null;
+  onActivityFound: (
+    activityType: Activity['activityType']['typeKey'],
+    date: string
+  ) => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [selectedType, setSelectedType] = useState(
@@ -26,7 +31,7 @@ export default function ActivityForm({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open]);
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  async function handleKeyDown(e: React.KeyboardEvent) {
     if (
       !open &&
       (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')
@@ -43,7 +48,10 @@ export default function ActivityForm({
         setActiveIndex((i) => (i - 1 + typeMap.length) % typeMap.length);
         e.preventDefault();
       } else if (e.key === 'Enter' || e.key === ' ') {
-        setSelectedActivity(typeMap[activeIndex].typeKey);
+        e.preventDefault();
+
+        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
+
         setOpen(false);
         e.preventDefault();
       } else if (e.key === 'Escape') {
@@ -124,7 +132,9 @@ export default function ActivityForm({
                 <li
                   id={`listbox-option-${idx}`}
                   role="option"
-                  aria-selected={selectedActivity === type.typeKey}
+                  aria-selected={
+                    selectedActivity?.activityType?.typeKey === type.typeKey
+                  }
                   className={`relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none ${
                     idx === activeIndex ? 'bg-indigo-100' : ''
                   }`}

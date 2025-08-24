@@ -29,11 +29,15 @@ export default async function getData() {
 }
 
 export async function getDateActivity(
-  activityType: Activity['activityType'],
+  activityType: Activity['activityType']['typeKey'],
   activityDate: string
 ) {
   const jsonData: Activity[] = await getData();
+  const simpleDate = (date: string) => date.split(' ')[0]; // Format to YYYY-MM-DD
+
   return jsonData.filter(
-    (activity) => activity.activityType.typeKey === activityType
+    (activity) =>
+      simpleDate(activity.startTimeLocal) === activityDate &&
+      activity.activityType.typeKey === activityType
   );
 }

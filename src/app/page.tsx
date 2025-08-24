@@ -13,9 +13,10 @@ export default async function Home() {
   const data = await getData();
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
+    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 container">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex items-center center">
+          <h1 className="text-3xl flex">Comeback</h1>
           <Image
             className="dark:invert"
             src="/arrow.svg"
@@ -24,19 +25,31 @@ export default async function Home() {
             height={50}
             priority
           />
-          <h1 className="text-3xl flex">Comeback</h1>
         </div>
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Compare peak to current performance
-          </li>
-          <li className="tracking-[-.01em]">
-            Determine target metrics for improvement
-          </li>
-        </ol>
+        <div className="flex gap-16">
+          <p className="font-serif text-lg">
+            Compare your peak to your current performance and determine target
+            metrics for improvement. This application will allow you to peruse
+            your Garmin data to compare past and current activities.
+          </p>
+          <ol className="list-outside list-decimal font-mono text-base">
+            <li className="mb-2 tracking-[-.01em]">
+              Choose a record of an activity recorded on your Garmin device with
+              metrics that youu wish to match or exceed. You will need to know
+              the type of activity and the date.
+            </li>
+            <li className="tracking-[-.01em]">
+              Determine target metrics for improvement
+            </li>
+          </ol>
+        </div>
 
         {data && data.length > 0 ? (
           <div>
+            <div className="flex flex-col gap-4 mb-8">
+              <h2 className="text-lg font-semibold">Your peak performance:</h2>
+              <ActivityInteraction />
+            </div>
             <div className="flex flex-col gap-4 mb-8">
               <h2 className="text-lg font-semibold">Recent Activities</h2>
               <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
@@ -49,11 +62,6 @@ export default async function Home() {
                   );
                 })}
               </ul>
-            </div>
-
-            <div>
-              <h2 className="text-lg font-semibold mb-8">Peak Activity: </h2>
-              <ActivityInteraction />
             </div>
           </div>
         ) : (

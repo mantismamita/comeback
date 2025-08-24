@@ -36,7 +36,6 @@ export async function submitActivity(
 
     console.log('Submitting...', activityType, activityDate);
     const activities = await getDateActivity(activityType, activityDate);
-    console.log('Submitting activity:', activities[0].activityName);
 
     return {
       success: true,
