@@ -1,14 +1,8 @@
 'use client';
 
-import type { Variants } from 'framer-motion';
+import { motion, AnimatePresence, useInView, useAnimate } from "motion/react";
 import { useActivities } from '../context/ActivitiesContext';
 import { useEffect, useRef, useState } from 'react';
-import {
-  motion,
-  AnimatePresence,
-  useInView,
-  useAnimation,
-} from 'framer-motion';
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
@@ -17,21 +11,52 @@ export default function ActivityComparison() {
   const [showMetrics, setShowMetrics] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
 
-  // Controls
-  const isInView = useInView(chartRef, { once: true, margin: '-100px' });
-  const controls = useAnimation();
+  const isInView = useInView(chartRef, {
+    amount: 0.01, 
+    once: true, 
+  });
+  const [scope, animate] = useAnimate();
 
+  // Run animation when in view
   useEffect(() => {
     if (isInView) {
-      controls.start('visible').then(() => {
+      console.log('Chart is in view, starting animation');
+
+      // Animate the container
+      animate(
+        { opacity: 1, y: 0, scale: 1 },
+        { duration: 0.6, ease: 'easeOut' }
+      );
+
+      // Animate children with stagger
+      animate(
+        'h2, p, div.chart-item',
+        { opacity: 1, y: 0, scale: 1 },
+        {
+          duration: 0.5,
+          delay: stagger(0.1),
+          ease: 'easeOut',
+        }
+      ).then(() => {
         console.log('Animation completed');
         setAnimationComplete(true);
       });
-      setTimeout(() => setShowMetrics(true), 1200);
-    }
-  }, [isInView, controls]);
 
-  // Early returns
+      setTimeout(() => setShowMetrics(true), 1200);
+    } else {
+      console.log('Chart not yet in view');
+    }
+  }, [isInView, animate, scope]);
+
+  console.log('ActivityComparison rendering', {
+    peakActivity: !!peakActivity,
+    currentActivity: !!currentActivity,
+    isInView,
+    scopeRef: !!scope.current,
+    chartRef: !!chartRef.current,
+  });
+
+  // Early return when no activities selected
   if (!peakActivity || !currentActivity) {
     return (
       <AnimatePresence>
@@ -66,6 +91,7 @@ export default function ActivityComparison() {
     );
   }
 
+  // Early return for mismatched activities
   if (
     peakActivity.activityType.typeKey !== currentActivity.activityType.typeKey
   ) {
@@ -112,8 +138,8 @@ export default function ActivityComparison() {
       lightColor: '#D1FAE5',
     },
     {
-      key: 'avgSpeed',
-      label: 'Avg Speed',
+      key: 'averageSpeed',
+      label: 'Average Speed',
       unit: 'km/h',
       icon: '⚡',
       color: '#F59E0B',
@@ -122,19 +148,18 @@ export default function ActivityComparison() {
   ];
 
   // Get the data values
-  const peakData = metricsToCompare.map((m) => ({
-    ...m,
-    value: (peakActivity[m.key as keyof typeof peakActivity] as number) || 0,
-  }));
-
-  const currentData = metricsToCompare.map((m) => ({
-    ...m,
+  const peakData = metricsToCompare.map((metric) => ({
+    ...metric,
     value:
-      (currentActivity[m.key as keyof typeof currentActivity] as number) || 0,
+      (peakActivity[metric.key as keyof typeof peakActivity] as number) || 0,
   }));
 
-  console.log('peakData', peakData);
-  console.log('currentData', currentData);
+  const currentData = metricsToCompare.map((metric) => ({
+    ...metric,
+    value:
+      (currentActivity[metric.key as keyof typeof currentActivity] as number) ||
+      0,
+  }));
 
   // Find max value for scaling
   const maxValue = Math.max(
@@ -149,67 +174,32 @@ export default function ActivityComparison() {
   const groupWidth = 140;
   const chartPadding = 60;
 
-  // Animation variants
-  const containerVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-      scale: 0.95,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.6,
-        ease: 'easeOut',
-        staggerChildren: 0.1,
-      },
-    },
-  };
-
-  const itemVariants: Variants = {
-    hidden: {
-      opacity: 0,
-      y: 20,
-      scale: 0.9,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        duration: 0.5,
-        ease: 'easeOut',
-      },
-    },
-  };
-
   return (
     <motion.div
       ref={chartRef}
-      variants={containerVariants}
-      initial="hidden"
-      animate={controls}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       className="mt-8"
     >
       {/* Header */}
-      <motion.div variants={itemVariants} className="mb-6 text-center">
+      <motion.div
+        className="mb-6 text-center chart-item"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1 }}
+      >
         <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Your Comeback Story
+          Your Comeback
         </h2>
-        <motion.p
-          variants={itemVariants}
-          className="text-gray-600 dark:text-gray-400 mt-2"
-        >
+        <motion.p className="text-gray-600 dark:text-gray-400 mt-2">
           {peakActivity.activityType.typeKey} Performance Comparison
         </motion.p>
       </motion.div>
 
       {/* Chart */}
       <motion.div
-        variants={itemVariants}
-        className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden"
+        className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden chart-item"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1 }}
         whileHover={{
           scale: 1.01,
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
@@ -255,10 +245,14 @@ export default function ActivityComparison() {
                   {/* Peak bar */}
                   <motion.rect
                     initial={{ height: 0, y: chartHeight }}
-                    animate={{
-                      height: peakHeight,
-                      y: chartHeight - peakHeight,
-                    }}
+                    animate={
+                      isInView
+                        ? {
+                            height: peakHeight,
+                            y: chartHeight - peakHeight,
+                          }
+                        : {}
+                    }
                     transition={{
                       duration: 1.2,
                       delay: 0.5 + index * 0.2,
@@ -280,10 +274,14 @@ export default function ActivityComparison() {
                   {/* Current bar */}
                   <motion.rect
                     initial={{ height: 0, y: chartHeight }}
-                    animate={{
-                      height: currentHeight,
-                      y: chartHeight - currentHeight,
-                    }}
+                    animate={
+                      isInView
+                        ? {
+                            height: currentHeight,
+                            y: chartHeight - currentHeight,
+                          }
+                        : {}
+                    }
                     transition={{
                       duration: 1.2,
                       delay: 0.7 + index * 0.2,
@@ -336,7 +334,7 @@ export default function ActivityComparison() {
                   {/* Metric labels */}
                   <motion.text
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    animate={isInView ? { opacity: 1 } : {}}
                     transition={{ delay: 1.5 + index * 0.1 }}
                     x={x + groupWidth / 2}
                     y={chartHeight + 25}
@@ -347,7 +345,7 @@ export default function ActivityComparison() {
                   </motion.text>
                   <motion.text
                     initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
+                    animate={isInView ? { opacity: 1 } : {}}
                     transition={{ delay: 1.6 + index * 0.1 }}
                     x={x + groupWidth / 2}
                     y={chartHeight + 40}
@@ -365,8 +363,8 @@ export default function ActivityComparison() {
         {/* Legend */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 2 }}
+          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          transition={{ delay: 2, duration: 0.5 }}
           className="flex justify-center mt-6 space-x-8"
         >
           <div className="flex items-center space-x-2">
@@ -527,9 +525,9 @@ export default function ActivityComparison() {
       {/* Motivational footer */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        animate={isInView ? { opacity: 1 } : {}}
         transition={{ delay: 2.5, duration: 0.5 }}
-        className="mt-8 text-center"
+        className="mt-8 text-center chart-item"
       >
         <motion.div
           animate={{
@@ -550,4 +548,8 @@ export default function ActivityComparison() {
       </motion.div>
     </motion.div>
   );
+}
+
+function stagger(duration = 0.1) {
+  return (i = 0) => i * duration;
 }

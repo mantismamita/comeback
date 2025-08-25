@@ -3,6 +3,7 @@ import Logo from './components/Logo';
 import Activity from './components/Activity';
 import ActivityInteraction from './components/ActivityInteraction';
 import ActivityComparison from './components/ActivityComparison';
+import Card from './components/Card';
 
 export const metadata = {
   title: 'Comeback',
@@ -19,22 +20,24 @@ export default async function Home() {
         <div className="flex items-center center">
           <Logo />
         </div>
-        <div className="flex gap-16">
-          <p className="font-serif text-lg">
+        <div className="lg:flex gap-16">
+          <p className="mb-6 lg:mb-0 font-serif text-lg">
             Compare your peak to your current performance and determine target
             metrics for improvement. This application will allow you to peruse
             your Garmin data to compare past and current activities.
           </p>
-          <ol className="list-outside list-decimal font-mono text-base">
-            <li className="mb-2 tracking-[-.01em]">
-              Choose a record of an activity recorded on your Garmin device with
-              metrics that youu wish to match or exceed. You will need to know
-              the type of activity and the date.
-            </li>
-            <li className="tracking-[-.01em]">
-              Determine target metrics for improvement
-            </li>
-          </ol>
+          <Card>
+            <ol className="list-outside list-decimal font-mono text-base">
+              <li className="mb-2 tracking-[-.01em]">
+                Choose a record of an activity recorded on your Garmin device
+                with metrics that youu wish to match or exceed. You will need to
+                know the type of activity and the date.
+              </li>
+              <li className="tracking-[-.01em]">
+                Determine target metrics for improvement
+              </li>
+            </ol>
+          </Card>
         </div>
 
         {data && data.length > 0 ? (

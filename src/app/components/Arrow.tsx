@@ -5,17 +5,32 @@ import { useState, useEffect } from 'react';
 
 export default function Arrow({ className = '' }: { className?: string }) {
   const [animate, setAnimate] = useState(false);
+  const [arrowHeadBlink, setArrowHeadBlink] = useState(false);
 
   // repeats every 5 seconds
   useEffect(() => {
     setAnimate(true);
     const interval = setInterval(() => {
       setAnimate(false);
+      setArrowHeadBlink(false);
       setTimeout(() => setAnimate(true), 100);
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
+
+  // Trigger arrowhead blink when glow reaches the end
+  useEffect(() => {
+    if (animate) {
+      // Time when the glow reaches the arrowhead - should match the animation timing
+      const blinkDelay = 1800; // This matches the glow's arrival at the arrowhead
+      const blinkTimer = setTimeout(() => {
+        setArrowHeadBlink(true);
+      }, blinkDelay);
+
+      return () => clearTimeout(blinkTimer);
+    }
+  }, [animate]);
 
   return (
     <div className={`relative ${className}`}>
@@ -33,18 +48,28 @@ export default function Arrow({ className = '' }: { className?: string }) {
             x2="100%"
             y2="0%"
           >
-            <stop offset="0%" stopColor="oklch(55.8% 0.288 302.321)" />{' '}
-            {/* purple-600 */}
-            <stop offset="40%" stopColor="oklch(65% 0.25 305)" />{' '}
-            {/* custom middle */}
-            <stop offset="60%" stopColor="oklch(68% 0.23 345)" />{' '}
-            {/* custom middle */}
-            <stop offset="100%" stopColor="oklch(59.2% 0.249 0.584)" />{' '}
-            {/* pink-600 */}
+            <stop offset="0%" stopColor="var(--gradient-start)" />
+            <stop offset="40%" stopColor="var(--gradient-middle-1)" />
+            <stop offset="60%" stopColor="var(--gradient-middle-2)" />
+            <stop offset="100%" stopColor="var(--gradient-end)" />
           </linearGradient>
+          <linearGradient
+            id="arrowHeadGradient"
+            x1="0%"
+            y1="0%"
+            x2="100%"
+            y2="0%"
+          >
+            <stop offset="0%" stopColor="var(--gradient-middle-2)" />
+            <stop offset="100%" stopColor="var(--gradient-end)" />
+          </linearGradient>
+          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
         </defs>
 
-        {/* Main arrow path with balanced segments */}
+        {/* Main arrow path */}
         <motion.path
           d="M5,50 L15,35 L30,35 L55,10"
           stroke="url(#comebackGradient)"
@@ -66,7 +91,7 @@ export default function Arrow({ className = '' }: { className?: string }) {
         {/* Arrow head */}
         <motion.path
           d="M55,10 L45,10 M55,10 L55,20"
-          stroke="url(#comebackGradient)"
+          stroke="url(#arrowHeadGradient)"
           strokeWidth="4"
           fill="none"
           strokeLinecap="round"
@@ -74,34 +99,54 @@ export default function Arrow({ className = '' }: { className?: string }) {
           animate={{
             pathLength: animate ? 1 : 0,
             opacity: animate ? 1 : 0,
+            filter: arrowHeadBlink ? 'url(#glow)' : 'none',
+            strokeWidth: arrowHeadBlink ? [4, 6, 4] : 4,
           }}
           transition={{
             pathLength: { duration: 0.5, delay: 1.4, ease: 'easeOut' },
             opacity: { duration: 0.3, delay: 1.4 },
+            filter: { duration: 0.6, ease: 'easeInOut' },
+            strokeWidth: {
+              duration: 0.6,
+              times: [0, 0.5, 1],
+              ease: 'easeInOut',
+              repeat: 2,
+              repeatType: 'reverse',
+            },
           }}
         />
 
         {/* Highlight points at each vertex */}
         {[
-          { x: 5, y: 50, delay: 0.3, color: 'oklch(55.8% 0.288 302.321)' }, // purple-600
-          { x: 15, y: 35, delay: 0.6, color: 'oklch(65% 0.25 305)' }, // custom middle
-          { x: 30, y: 35, delay: 0.9, color: 'oklch(68% 0.23 345)' }, // custom middle
-          { x: 55, y: 10, delay: 1.2, color: 'oklch(59.2% 0.249 0.584)' }, // pink-600
+          { x: 5, y: 50, delay: 0.3, color: 'var(--gradient-start)' },
+          { x: 15, y: 35, delay: 0.6, color: 'var(--gradient-middle-1)' },
+          { x: 30, y: 35, delay: 0.9, color: 'var(--gradient-middle-2)' },
+          { x: 55, y: 10, delay: 1.2, color: 'var(--gradient-end)' },
         ].map((point, index) => (
           <motion.circle
             key={index}
             cx={point.x}
             cy={point.y}
-            r="3"
+            r={3}
             fill={point.color}
             initial={{ scale: 0, opacity: 0 }}
             animate={{
-              scale: animate ? 1 : 0,
+              scale:
+                index === 3 && arrowHeadBlink ? [1, 1.33, 1] : animate ? 1 : 0,
               opacity: animate ? 1 : 0,
+              filter: index === 3 && arrowHeadBlink ? 'url(#glow)' : 'none',
             }}
             transition={{
-              scale: { duration: 0.3, delay: point.delay },
+              scale: {
+                duration: index === 3 && arrowHeadBlink ? 0.6 : 0.3,
+                delay: index === 3 && arrowHeadBlink ? 0 : point.delay,
+                times: index === 3 && arrowHeadBlink ? [0, 0.5, 1] : undefined,
+                repeat: index === 3 && arrowHeadBlink ? 2 : 0,
+                repeatType:
+                  index === 3 && arrowHeadBlink ? 'reverse' : undefined,
+              },
               opacity: { duration: 0.3, delay: point.delay },
+              filter: { duration: 0.6, ease: 'easeInOut' },
             }}
           />
         ))}
@@ -110,8 +155,8 @@ export default function Arrow({ className = '' }: { className?: string }) {
         <motion.circle
           cx="0"
           cy="0"
-          r="5"
-          fill="oklch(71.8% 0.202 349.761)" // pink-400
+          r={5} // Fixed: Set a static value here
+          fill="var(--color-pink-400)"
           filter="blur(3px)"
           initial={{ opacity: 0 }}
           animate={{
@@ -137,6 +182,24 @@ export default function Arrow({ className = '' }: { className?: string }) {
               delay: 0.3,
               ease: 'easeInOut',
             },
+          }}
+        />
+
+        <motion.circle
+          cx={55}
+          cy={10}
+          r={8} // Fixed: Set a static value here
+          fill="var(--color-pink-400)"
+          initial={{ opacity: 0, scale: 0 }}
+          animate={{
+            opacity: arrowHeadBlink ? [0, 0.3, 0] : 0,
+            scale: arrowHeadBlink ? [0.5, 1.5, 0.5] : 0.5,
+          }}
+          transition={{
+            opacity: { duration: 0.8, times: [0, 0.5, 1], ease: 'easeInOut' },
+            scale: { duration: 0.8, times: [0, 0.5, 1], ease: 'easeInOut' },
+            repeat: arrowHeadBlink ? 2 : 0,
+            repeatType: 'reverse',
           }}
         />
       </svg>
