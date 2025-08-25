@@ -4,11 +4,21 @@ import { textToEmoji, typeMap } from '@/utils/activityTypes';
 import type { Activity } from '@/types/Activity';
 
 export default function ActivityForm({
-  activityType,
-}: Partial<Pick<Activity, 'activityType'>> = {}) {
-  const [selectedType, setSelectedType] = useState(activityType?.typeKey || '');
+  selectedActivity,
+  onActivityFound,
+}: {
+  selectedActivity: Pick<Activity, 'activityType'> | null;
+  onActivityFound: (
+    activityType: Activity['activityType']['typeKey'],
+    date: string
+  ) => Promise<void>;
+}) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [selectedType, setSelectedType] = useState(
+    selectedActivity?.activityType?.typeKey || ''
+  );
+  const [activityDate, setActivityDate] = useState('');
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
@@ -21,7 +31,7 @@ export default function ActivityForm({
     return () => document.removeEventListener('mousedown', handleClick);
   }, [open]);
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  async function handleKeyDown(e: React.KeyboardEvent) {
     if (
       !open &&
       (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')
@@ -38,7 +48,10 @@ export default function ActivityForm({
         setActiveIndex((i) => (i - 1 + typeMap.length) % typeMap.length);
         e.preventDefault();
       } else if (e.key === 'Enter' || e.key === ' ') {
-        setSelectedType(typeMap[activeIndex].typeKey);
+        e.preventDefault();
+
+        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
+
         setOpen(false);
         e.preventDefault();
       } else if (e.key === 'Escape') {
@@ -61,7 +74,14 @@ export default function ActivityForm({
   const t = typeMap.filter((type) => type.typeKey === selectedType);
 
   return (
-    <form className="activity-form flex flex-wrap gap-6" method="post">
+    <form
+      className="activity-form flex flex-wrap gap-6"
+      onSubmit={async (event) => {
+        event.preventDefault();
+
+        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
+      }}
+    >
       <div className="form-group w-1/3">
         <label
           id="listbox-label"
@@ -112,7 +132,9 @@ export default function ActivityForm({
                 <li
                   id={`listbox-option-${idx}`}
                   role="option"
-                  aria-selected={selectedType === type.typeKey}
+                  aria-selected={
+                    selectedActivity?.activityType?.typeKey === type.typeKey
+                  }
                   className={`relative cursor-default py-2 pr-9 pl-3 text-gray-900 select-none ${
                     idx === activeIndex ? 'bg-indigo-100' : ''
                   }`}
@@ -161,6 +183,11 @@ export default function ActivityForm({
           name="activityDate"
           className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
           required
+          value={activityDate ?? ''}
+          onChange={(e) => setActivityDate(e.target.value)}
+          onFocus={() => setOpen(false)}
+          onBlur={() => setOpen(false)}
+          autoComplete="off"
         />
       </div>
 
