@@ -194,7 +194,7 @@ export default function ActivityForm({
       <input type="hidden" name="activityType" value={selectedType} />
       <div className="form-group w-full">
         <button
-          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+          className="bg-purple-600 hover:bg-pink-600 text-white px-4 py-2 rounded-md transition-colors duration-300"
           type="submit"
         >
           Save Activity

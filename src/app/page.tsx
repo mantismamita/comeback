@@ -1,5 +1,5 @@
-import Image from 'next/image';
 import getData from './getData';
+import Logo from './components/Logo';
 import Activity from './components/Activity';
 import ActivityInteraction from './components/ActivityInteraction';
 import ActivityComparison from './components/ActivityComparison';
@@ -14,18 +14,10 @@ export default async function Home() {
   const data = await getData();
 
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 container">
+    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
       <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
         <div className="flex items-center center">
-          <h1 className="text-3xl flex">Comeback</h1>
-          <Image
-            className="dark:invert"
-            src="/arrow.svg"
-            alt="comeback logo"
-            width={50}
-            height={50}
-            priority
-          />
+          <Logo />
         </div>
         <div className="flex gap-16">
           <p className="font-serif text-lg">
