@@ -29,12 +29,16 @@ export default function ActivityInteraction() {
 
   return (
     <>
-      <ActivityForm
-        selectedActivity={selectedActivity}
-        onActivityFound={onActivityFound}
-      />
-      {selectedActivity && (
-        <SelectedActivityDisplay activity={selectedActivity} />
+      {selectedActivity ? (
+        <SelectedActivityDisplay
+          activity={selectedActivity}
+          title="Peak Activity"
+        />
+      ) : (
+        <ActivityForm
+          selectedActivity={selectedActivity}
+          onActivityFound={onActivityFound}
+        />
       )}
     </>
   );
