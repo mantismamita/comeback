@@ -2,6 +2,7 @@ import Image from 'next/image';
 import getData from './getData';
 import Activity from './components/Activity';
 import ActivityInteraction from './components/ActivityInteraction';
+import ActivityComparison from './components/ActivityComparison';
 
 export const metadata = {
   title: 'Comeback',
@@ -45,12 +46,21 @@ export default async function Home() {
         </div>
 
         {data && data.length > 0 ? (
-          <div>
+          <div className="w-full">
             <div className="flex flex-col gap-4 mb-8">
               <h2 className="text-lg font-semibold">Your peak performance:</h2>
-              <ActivityInteraction />
+              <ActivityInteraction type="peak" />
             </div>
             <div className="flex flex-col gap-4 mb-8">
+              <h2 className="text-lg font-semibold">
+                Your current performance:
+              </h2>
+              <ActivityInteraction type="current" />
+            </div>
+
+            <ActivityComparison />
+
+            <div className="flex flex-col gap-4 mb-8 mt-12">
               <h2 className="text-lg font-semibold">Recent Activities</h2>
               <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
                 {data.map((activity) => {
@@ -68,53 +78,7 @@ export default async function Home() {
           <p className="text-red-500">No data available.</p>
         )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      {/* Footer section */}
     </div>
   );
 }
