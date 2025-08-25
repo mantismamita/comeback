@@ -3,6 +3,11 @@
 import { motion, AnimatePresence, useInView, useAnimate } from "motion/react";
 import { useActivities } from '../context/ActivitiesContext';
 import { useEffect, useRef, useState } from 'react';
+import {
+  roundToKm,
+  formatNumber,
+  roundToHoursMinutes,
+} from '../../utils/units';
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
@@ -49,8 +54,8 @@ export default function ActivityComparison() {
   }, [isInView, animate, scope]);
 
   console.log('ActivityComparison rendering', {
-    peakActivity: !!peakActivity,
-    currentActivity: !!currentActivity,
+    peakActivity: peakActivity,
+    currentActivity: currentActivity,
     isInView,
     scopeRef: !!scope.current,
     chartRef: !!chartRef.current,
@@ -128,6 +133,11 @@ export default function ActivityComparison() {
       icon: '📏',
       color: '#3B82F6',
       lightColor: '#DBEAFE',
+      callback: (value) => {
+        // Custom callback for distance
+        console.log('Distance value:', value);
+        return roundToKm(value);
+      },
     },
     {
       key: 'duration',
@@ -136,6 +146,11 @@ export default function ActivityComparison() {
       icon: '⏱️',
       color: '#10B981',
       lightColor: '#D1FAE5',
+      callback: (value) => {
+        // Custom callback for duration
+        console.log('Duration value:', value);
+        return value / 60; // convert seconds to minutes
+      },
     },
     {
       key: 'averageSpeed',
@@ -144,22 +159,30 @@ export default function ActivityComparison() {
       icon: '⚡',
       color: '#F59E0B',
       lightColor: '#FEF3C7',
+      callback: (value) => {
+        // Custom callback for average speed
+        console.log('Average Speed value:', value);
+        return value;
+      },
     },
   ];
 
   // Get the data values
-  const peakData = metricsToCompare.map((metric) => ({
-    ...metric,
-    value:
-      (peakActivity[metric.key as keyof typeof peakActivity] as number) || 0,
-  }));
+  const peakData = metricsToCompare.map((metric) => {
+    return {
+      ...metric,
+      value:
+        metric.callback((peakActivity[metric.key as keyof typeof peakActivity] as number) || 0),
+    };
+  });
 
-  const currentData = metricsToCompare.map((metric) => ({
-    ...metric,
-    value:
-      (currentActivity[metric.key as keyof typeof currentActivity] as number) ||
-      0,
-  }));
+  const currentData = metricsToCompare.map((metric) => {
+    return {
+      ...metric,
+      value:
+        metric.callback((currentActivity[metric.key as keyof typeof currentActivity] as number) || 0),
+    };
+  });
 
   // Find max value for scaling
   const maxValue = Math.max(
@@ -176,7 +199,6 @@ export default function ActivityComparison() {
 
   return (
     <motion.div
-      ref={chartRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="mt-8"
@@ -197,9 +219,10 @@ export default function ActivityComparison() {
 
       {/* Chart */}
       <motion.div
+        ref={chartRef}
         className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden chart-item"
         initial={{ opacity: 0, y: 20, scale: 0.9 }}
-        animate={{ opacity: 1 }}
+        whileInView={{ opacity: 1 }}
         whileHover={{
           scale: 1.01,
           boxShadow: '0 20px 40px rgba(0,0,0,0.1)',
@@ -245,14 +268,10 @@ export default function ActivityComparison() {
                   {/* Peak bar */}
                   <motion.rect
                     initial={{ height: 0, y: chartHeight }}
-                    animate={
-                      isInView
-                        ? {
-                            height: peakHeight,
-                            y: chartHeight - peakHeight,
-                          }
-                        : {}
-                    }
+                    whileInView={{
+                      height: peakHeight,
+                      y: chartHeight - peakHeight,
+                    }}
                     transition={{
                       duration: 1.2,
                       delay: 0.5 + index * 0.2,
@@ -274,14 +293,10 @@ export default function ActivityComparison() {
                   {/* Current bar */}
                   <motion.rect
                     initial={{ height: 0, y: chartHeight }}
-                    animate={
-                      isInView
-                        ? {
-                            height: currentHeight,
-                            y: chartHeight - currentHeight,
-                          }
-                        : {}
-                    }
+                    whileInView={{
+                      height: currentHeight,
+                      y: chartHeight - currentHeight,
+                    }}
                     transition={{
                       duration: 1.2,
                       delay: 0.7 + index * 0.2,
@@ -306,7 +321,7 @@ export default function ActivityComparison() {
                     {hoveredBar === `peak-${metric.key}` && (
                       <motion.text
                         initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         x={x + barWidth / 2}
                         y={chartHeight - peakHeight - 10}
@@ -319,14 +334,14 @@ export default function ActivityComparison() {
                     {hoveredBar === `current-${metric.key}` && (
                       <motion.text
                         initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
+                        whileInView={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
                         x={x + barWidth + 8 + barWidth / 2}
                         y={chartHeight - currentHeight - 10}
                         textAnchor="middle"
                         className="text-sm font-bold fill-current text-gray-800 dark:text-gray-200"
                       >
-                        {currentValue.toFixed(1)}
+                        {formatNumber(currentValue)}
                       </motion.text>
                     )}
                   </AnimatePresence>
@@ -334,7 +349,7 @@ export default function ActivityComparison() {
                   {/* Metric labels */}
                   <motion.text
                     initial={{ opacity: 0 }}
-                    animate={isInView ? { opacity: 1 } : {}}
+                    whileInView={{ opacity: 1 }}
                     transition={{ delay: 1.5 + index * 0.1 }}
                     x={x + groupWidth / 2}
                     y={chartHeight + 25}
@@ -345,7 +360,7 @@ export default function ActivityComparison() {
                   </motion.text>
                   <motion.text
                     initial={{ opacity: 0 }}
-                    animate={isInView ? { opacity: 1 } : {}}
+                    whileInView={{ opacity: 1 }}
                     transition={{ delay: 1.6 + index * 0.1 }}
                     x={x + groupWidth / 2}
                     y={chartHeight + 40}
@@ -363,7 +378,7 @@ export default function ActivityComparison() {
         {/* Legend */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
-          animate={isInView ? { opacity: 1, y: 0 } : {}}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ delay: 2, duration: 0.5 }}
           className="flex justify-center mt-6 space-x-8"
         >
@@ -387,7 +402,7 @@ export default function ActivityComparison() {
         {showMetrics && (
           <motion.div
             initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"
           >
@@ -403,7 +418,7 @@ export default function ActivityComparison() {
                 <motion.div
                   key={metric.key}
                   initial={{ opacity: 0, scale: 0.8, rotateY: -15 }}
-                  animate={{ opacity: 1, scale: 1, rotateY: 0 }}
+                  whileInView={{ opacity: 1, scale: 1, rotateY: 0 }}
                   transition={{
                     duration: 0.6,
                     delay: index * 0.1,

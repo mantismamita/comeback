@@ -11,3 +11,8 @@ export function roundToHoursMinutes(seconds: number): string {
   }
   return `${hours}h ${minutes}m`;
 }
+
+export function formatNumber(value: unknown, decimals = 1): string {
+  if (typeof value !== 'number' || isNaN(value)) return '0.0';
+  return value.toFixed(decimals);
+}
