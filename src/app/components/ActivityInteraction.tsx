@@ -23,7 +23,7 @@ export default function ActivityInteraction() {
         'Error finding activity:',
         response.error || response.message
       );
-      setSelectedActivity({} as Activity); // Reset
+      setSelectedActivity(null); // Reset
     }
   }
 
@@ -33,6 +33,7 @@ export default function ActivityInteraction() {
         <SelectedActivityDisplay
           activity={selectedActivity}
           title="Peak Activity"
+          onClose={() => setSelectedActivity(null)}
         />
       ) : (
         <ActivityForm
