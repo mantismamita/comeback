@@ -22,7 +22,7 @@ export default function ActivityInteraction({
   const setSelectedActivity =
     type === 'peak' ? setPeakActivity : setCurrentActivity;
 
-  async function onActivityFound(
+  async function onActivityFoundAction(
     typeKey: Activity['activityType']['typeKey'],
     date: string
   ) {
@@ -50,13 +50,12 @@ export default function ActivityInteraction({
       {selectedActivity ? (
         <SelectedActivityDisplay
           activity={selectedActivity}
-          title={type === 'peak' ? 'Peak Activity' : 'Current Activity'}
           onClose={() => setSelectedActivity(null)}
         />
       ) : (
         <ActivityForm
           selectedActivity={selectedActivity}
-          onActivityFound={onActivityFound}
+          onActivityFoundAction={onActivityFoundAction}
         />
       )}
     </div>

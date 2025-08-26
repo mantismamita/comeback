@@ -28,6 +28,7 @@ export default function ActivityComparison() {
 
       // Animate the container
       animate(
+        scope.current,
         { opacity: 1, y: 0, scale: 1 },
         { duration: 0.6, ease: 'easeOut' }
       );

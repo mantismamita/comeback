@@ -21,7 +21,7 @@ export default async function Home() {
           <Logo />
         </div>
         <div className="lg:flex gap-16">
-          <p className="mb-6 lg:mb-0 font-serif text-lg">
+          <p className="mb-6 lg:mb-0 text-lg text-pink-100">
             Compare your peak to your current performance and determine target
             metrics for improvement. This application will allow you to peruse
             your Garmin data to compare past and current activities.
@@ -62,7 +62,7 @@ export default async function Home() {
                   const { activityId } = activity;
                   return (
                     <li key={activityId} className="text-sm">
-                      <Activity activity={activity} />
+                      <Activity activity={activity} withBorder />
                     </li>
                   );
                 })}

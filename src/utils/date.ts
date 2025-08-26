@@ -11,7 +11,6 @@ export function formatDate(dateString: string, locale= 'fr-FR', dateFormat = yea
   return date.toLocaleDateString(locale, dateFormat);
 }
 
-export function formatDateToInput(dateString: string): string {
-  const date = new Date(dateString);
-  return date.toISOString().split("T")[0];
+export function formatDateToInput(dateObj: Date): string {
+  return dateObj.toISOString().split("T")[0];
 }
