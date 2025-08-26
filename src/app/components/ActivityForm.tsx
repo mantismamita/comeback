@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { textToEmoji, typeMap } from '@/utils/activityTypes';
 import type { Activity } from '@/types/Activity';
+import { formatDate, formatDateToInput } from '@/utils/date';
 
 export default function ActivityForm({
   selectedActivity,
@@ -179,6 +180,7 @@ export default function ActivityForm({
         </label>
         <input
           type="date"
+          max={formatDateToInput(Date.now())}
           id="activity-date"
           name="activityDate"
           className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"

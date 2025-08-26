@@ -1,15 +1,12 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand specific OKLCH values */
-  --gradient-start: oklch(55.8% 0.288 302.321);
-  /* purple-600 */
+  --gradient-start: var(--color-purple-600);
   --gradient-middle-1: oklch(65% 0.25 305);
   /* custom between purple and pink */
   --gradient-middle-2: oklch(68% 0.23 345);
   /* custom between purple and pink */
-  --gradient-end: oklch(59.2% 0.249 0.584);
-  /* pink-600 */
+  --gradient-end: var(--color-pink-600);
 }
 
 @theme {
@@ -62,4 +59,30 @@ body {
 .animate-gradient {
   background-size: 200% 200%;
   animation: gradientShift 8s ease infinite;
+}
+
+.border-glow {
+  background-size: 200% 200%;
+  background-position: 0% 50%;
+  transition: background-position 0.4s;
+}
+
+.animate-border-glow {
+  animation: borderGlowMove 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes borderGlowMove {
+  0% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 8px var(--gradient-end));
+  }
+
+  60% {
+    filter: drop-shadow(0 0 16px var(--gradient-end));
+  }
+
+  100% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 0px var(--gradient-end));
+  }
 }

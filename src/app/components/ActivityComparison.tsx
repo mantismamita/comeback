@@ -8,6 +8,7 @@ import {
   formatNumber,
   roundToHoursMinutes,
 } from '../../utils/units';
+import { form } from "framer-motion/m";
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
@@ -76,19 +77,20 @@ export default function ActivityComparison() {
             <motion.div
               animate={{
                 rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
-                repeatType: 'reverse',
+                repeatType: 'loop',
+                ease: 'linear',
               }}
+              style={{ transformOrigin: '50% 60%' }}
               className="inline-block text-4xl mb-4"
             >
               🏃‍♂️
             </motion.div>
             <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
-              Select both peak and current activities to see your comeback story
+              Select both peak and current activities to see your progress
             </h3>
           </div>
         </motion.div>
@@ -131,13 +133,9 @@ export default function ActivityComparison() {
       label: 'Distance',
       unit: 'km',
       icon: '📏',
-      color: '#3B82F6',
+      color: 'var(--color-indigo-600)',
       lightColor: '#DBEAFE',
-      callback: (value) => {
-        // Custom callback for distance
-        console.log('Distance value:', value);
-        return roundToKm(value);
-      },
+      callback: (value: number) => roundToKm(value),
     },
     {
       key: 'duration',
@@ -146,11 +144,7 @@ export default function ActivityComparison() {
       icon: '⏱️',
       color: '#10B981',
       lightColor: '#D1FAE5',
-      callback: (value) => {
-        // Custom callback for duration
-        console.log('Duration value:', value);
-        return value / 60; // convert seconds to minutes
-      },
+      callback: (value: number) => value / 60,
     },
     {
       key: 'averageSpeed',
@@ -159,11 +153,7 @@ export default function ActivityComparison() {
       icon: '⚡',
       color: '#F59E0B',
       lightColor: '#FEF3C7',
-      callback: (value) => {
-        // Custom callback for average speed
-        console.log('Average Speed value:', value);
-        return value;
-      },
+      callback: (value: number) => value,
     },
   ];
 
@@ -186,8 +176,8 @@ export default function ActivityComparison() {
 
   // Find max value for scaling
   const maxValue = Math.max(
-    ...peakData.map((d) => d.value),
-    ...currentData.map((d) => d.value)
+    ...peakData.map((d) => Number(d.value)),
+    ...currentData.map((d) => Number(d.value))
   );
 
   // Chart dimensions
@@ -255,8 +245,8 @@ export default function ActivityComparison() {
 
             {/* Bars */}
             {metricsToCompare.map((metric, index) => {
-              const peakValue = peakData[index].value;
-              const currentValue = currentData[index].value;
+              const peakValue = Number(peakData[index].value);
+              const currentValue = Number(currentData[index].value);
 
               const x = chartPadding + index * groupWidth;
               const peakHeight = (peakValue / maxValue) * (chartHeight - 40);
@@ -328,7 +318,7 @@ export default function ActivityComparison() {
                         textAnchor="middle"
                         className="text-sm font-bold fill-current text-gray-800 dark:text-gray-200"
                       >
-                        {peakValue.toFixed(1)}
+                        {formatNumber(peakValue)}
                       </motion.text>
                     )}
                     {hoveredBar === `current-${metric.key}` && (
@@ -407,8 +397,8 @@ export default function ActivityComparison() {
             className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4"
           >
             {metricsToCompare.map((metric, index) => {
-              const peakValue = peakData[index].value;
-              const currentValue = currentData[index].value;
+              const peakValue = Number(peakData[index].value);
+              const currentValue = Number(currentData[index].value);
               const difference = currentValue - peakValue;
               const percentChange = peakValue
                 ? (difference / peakValue) * 100
@@ -478,13 +468,13 @@ export default function ActivityComparison() {
                         <span>
                           Peak:{' '}
                           <strong>
-                            {peakValue.toFixed(1)} {metric.unit}
+                            {formatNumber(peakValue)} {metric.unit}
                           </strong>
                         </span>
                         <span>
                           Current:{' '}
                           <strong>
-                            {currentValue.toFixed(1)} {metric.unit}
+                            {formatNumber(currentValue)} {metric.unit}
                           </strong>
                         </span>
                       </div>
@@ -522,9 +512,9 @@ export default function ActivityComparison() {
                           }}
                         >
                           {difference > 0 ? '+' : ''}
-                          {difference.toFixed(2)}
+                          {formatNumber(difference, 2)}
                           <span className="text-sm ml-1">
-                            ({percentChange.toFixed(1)}%)
+                            ({formatNumber(percentChange)}%)
                           </span>
                         </motion.p>
                       </motion.div>
