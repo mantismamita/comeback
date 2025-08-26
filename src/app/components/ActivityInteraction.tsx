@@ -29,7 +29,7 @@ export default function ActivityInteraction({
     setIsLoading(true);
     try {
       const response = await submitActivity(typeKey, date);
-      console.log('Activity found:', response);
+
       if (response.success && response.results?.length) {
         setSelectedActivity(response.results[0]);
       } else {

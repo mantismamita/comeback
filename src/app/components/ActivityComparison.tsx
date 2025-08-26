@@ -11,54 +11,42 @@ import {
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
-  const chartRef = useRef<HTMLDivElement>(null);
   const [_, setAnimationComplete] = useState(false);
   const [showMetrics, setShowMetrics] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
-  const isInView = useInView(chartRef, {
-    amount: 0.01,
-    once: true,
-  });
-
+  const isInView = useInView(chartRef, { amount: 0.01, once: true });
   const [scope, animate] = useAnimate();
 
   // TODO debug this isn't working properly
   useEffect(() => {
-    if (isInView) {
-      console.log('Chart is in view, starting animation');
+    if (!isInView || !scope.current) return;
 
-      // Animate the container
-      if (chartRef.current) {
-        animate(
-          chartRef.current,
-          { opacity: 1, y: 0, scale: 1 },
-          { duration: 0.6, ease: 'easeOut' }
-        );
+    // Animate the container
+    animate(
+      scope.current,
+      { opacity: 1, y: 0, scale: 1 },
+      { duration: 0.6, ease: 'easeOut' }
+    );
+
+    // Animate children with delay
+    animate(
+      'h2, p, div.chart-item',
+      { opacity: 1, y: 0, scale: 1 },
+      {
+        duration: 0.5,
+        delay: stagger(0.1),
+        ease: 'easeOut',
       }
+    ).then(() => {
+      setAnimationComplete(true);
+    });
 
-      // Animate children with delay
-      animate(
-        'h2, p, div.chart-item',
-        { opacity: 1, y: 0, scale: 1 },
-        {
-          duration: 0.5,
-          delay: stagger(0.1),
-          ease: 'easeOut',
-        }
-      ).then(() => {
-        console.log('Animation completed');
-        setAnimationComplete(true);
-      });
+    setTimeout(() => setShowMetrics(true), 1200);
+  }, [isInView, animate, scope]);
 
-      setTimeout(() => setShowMetrics(true), 1200);
-    } else {
-      console.log('Chart not yet in view');
-      if (chartRef.current) {
-        setTimeout(() => setShowMetrics(true), 1200);
-      }
-    }
-  }, [isInView, animate, chartRef]);
+  // TODO: for debugging
 
   console.log('ActivityComparison rendering', {
     peakActivity: peakActivity,
@@ -181,6 +169,7 @@ export default function ActivityComparison() {
 
   return (
     <motion.div
+      ref={chartRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="mt-8"
@@ -201,7 +190,7 @@ export default function ActivityComparison() {
 
       {/* Chart */}
       <motion.div
-        ref={chartRef}
+        ref={scope}
         className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden chart-item"
         initial={{ opacity: 0, y: 20, scale: 0.9 }}
         whileInView={{ opacity: 1 }}
@@ -522,23 +511,11 @@ export default function ActivityComparison() {
       {/* Motivational footer */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : {}}
+        whileInView={{ opacity: 1 }}
         transition={{ delay: 2.5, duration: 0.5 }}
         className="mt-8 text-center chart-item"
       >
-        <motion.div
-          animate={{
-            y: [0, -5, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="inline-block text-2xl mb-2"
-        >
-          💪
-        </motion.div>
+        <div className="text-2xl mb-2">💪</div>
         <p className="text-gray-600 dark:text-gray-400 italic">
           &quot;Every comeback starts with a single step forward&quot;
         </p>
