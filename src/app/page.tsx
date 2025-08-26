@@ -26,18 +26,28 @@ export default async function Home() {
             metrics for improvement. This application will allow you to peruse
             your Garmin data to compare past and current activities.
           </p>
-          <Card>
-            <ol className="list-outside list-decimal font-mono text-base">
-              <li className="mb-2 tracking-[-.01em]">
-                Choose a record of an activity recorded on your Garmin device
-                with metrics that youu wish to match or exceed. You will need to
-                know the type of activity and the date.
-              </li>
-              <li className="tracking-[-.01em]">
-                Determine target metrics for improvement
-              </li>
-            </ol>
-          </Card>
+          <div
+            className="max-w-2xl"
+            style={
+              {
+                '--gradient-start': 'var(--color-purple-200)',
+                '--gradient-end': 'var(--color-pink-200)',
+              } as React.CSSProperties
+            }
+          >
+            <Card>
+              <ol className="list-outside list-decimal font-mono text-base">
+                <li className="mb-2 tracking-[-.01em]">
+                  Choose a record of an activity recorded on your Garmin device
+                  with metrics that youu wish to match or exceed. You will need
+                  to know the type of activity and the date.
+                </li>
+                <li className="tracking-[-.01em]">
+                  Determine target metrics for improvement
+                </li>
+              </ol>
+            </Card>
+          </div>
         </div>
 
         {data && data.length > 0 ? (

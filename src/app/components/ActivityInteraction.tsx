@@ -15,7 +15,6 @@ export default function ActivityInteraction({
   const { setPeakActivity, setCurrentActivity, peakActivity, currentActivity } =
     useActivities();
 
-  // Local state for UI management
   const [isLoading, setIsLoading] = useState(false);
 
   const selectedActivity = type === 'peak' ? peakActivity : currentActivity;
@@ -41,7 +40,7 @@ export default function ActivityInteraction({
       }
     } catch (error) {
       // TODO: Add context for error modal or Card
-      console.warn('Error submitting activity:', error);
+      console.error('Error submitting activity:', error);
     } finally {
       setIsLoading(false);
     }

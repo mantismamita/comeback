@@ -21,7 +21,7 @@ export default function ActivityComparison() {
 
   // TODO debug this isn't working properly
   useEffect(() => {
-    if (!isInView || !scope.current) return;
+    if (!scope.current) return;
 
     // Animate the container
     animate(
