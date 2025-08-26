@@ -1,57 +1,52 @@
 'use client';
 
-import { motion, AnimatePresence, useInView, useAnimate } from "motion/react";
+import { motion, AnimatePresence, useInView, useAnimate } from 'motion/react';
 import { useActivities } from '../context/ActivitiesContext';
 import { useEffect, useRef, useState } from 'react';
 import {
   roundToKm,
   formatNumber,
+  metersPerSecondToKmPerHour,
 } from '../../utils/units';
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
-  const chartRef = useRef<HTMLDivElement>(null);
   const [_, setAnimationComplete] = useState(false);
   const [showMetrics, setShowMetrics] = useState(false);
   const [hoveredBar, setHoveredBar] = useState<string | null>(null);
+  const chartRef = useRef<HTMLDivElement>(null);
 
-  const isInView = useInView(chartRef, {
-    amount: 0.01, 
-    once: true, 
-  });
+  const isInView = useInView(chartRef, { amount: 0.01, once: true });
   const [scope, animate] = useAnimate();
 
-  // Run animation when in view
+  // TODO debug this isn't working properly
   useEffect(() => {
-    if (isInView) {
-      console.log('Chart is in view, starting animation');
+    if (!scope.current) return;
 
-      // Animate the container
-      animate(
-        scope.current,
-        { opacity: 1, y: 0, scale: 1 },
-        { duration: 0.6, ease: 'easeOut' }
-      );
+    // Animate the container
+    animate(
+      scope.current,
+      { opacity: 1, y: 0, scale: 1 },
+      { duration: 0.6, ease: 'easeOut' }
+    );
 
-      // Animate children with stagger
-      animate(
-        'h2, p, div.chart-item',
-        { opacity: 1, y: 0, scale: 1 },
-        {
-          duration: 0.5,
-          delay: stagger(0.1),
-          ease: 'easeOut',
-        }
-      ).then(() => {
-        console.log('Animation completed');
-        setAnimationComplete(true);
-      });
+    // Animate children with delay
+    animate(
+      'h2, p, div.chart-item',
+      { opacity: 1, y: 0, scale: 1 },
+      {
+        duration: 0.5,
+        delay: stagger(0.1),
+        ease: 'easeOut',
+      }
+    ).then(() => {
+      setAnimationComplete(true);
+    });
 
-      setTimeout(() => setShowMetrics(true), 1200);
-    } else {
-      console.log('Chart not yet in view');
-    }
+    setTimeout(() => setShowMetrics(true), 1200);
   }, [isInView, animate, scope]);
+
+  // TODO: for debugging
 
   console.log('ActivityComparison rendering', {
     peakActivity: peakActivity,
@@ -66,63 +61,46 @@ export default function ActivityComparison() {
     return (
       <AnimatePresence>
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.3 }}
-          className="mt-8 p-6 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-xl shadow-lg border border-gray-200 dark:border-gray-600"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="mt-8 p-4 bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900 dark:to-purple-900 rounded-lg border-1 border-indigo-400"
         >
-          <div className="text-center">
-            <motion.div
-              animate={{
-                rotate: [0, 10, -10, 0],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                repeatType: 'loop',
-                ease: 'linear',
-              }}
-              style={{ transformOrigin: '50% 60%' }}
-              className="inline-block text-4xl mb-4"
-            >
-              🏃‍♂️
-            </motion.div>
-            <h3 className="text-lg font-medium text-gray-700 dark:text-gray-300">
-              Select both peak and current activities to see your progress
-            </h3>
-          </div>
+          <motion.p
+            initial={{ x: -10 }}
+            animate={{ x: 0 }}
+            className="text-yellow-800 dark:text-indigo-200 flex items-center"
+          >
+            <span className="mr-6"></span>
+            Select both peak and current activities to see your progress
+          </motion.p>
         </motion.div>
       </AnimatePresence>
     );
   }
 
-  // Early return for mismatched activities
+  // Mismatched activities
   if (
     peakActivity.activityType.typeKey !== currentActivity.activityType.typeKey
   ) {
     return (
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -20 }}
-        className="mt-8 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900 dark:to-orange-900 rounded-lg border-l-4 border-yellow-400"
-      >
-        <motion.p
-          initial={{ x: -10 }}
-          animate={{ x: 0 }}
-          className="text-yellow-800 dark:text-yellow-200 flex items-center"
+      <AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="mt-8 p-4 bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900 dark:to-orange-900 rounded-lg border-1 border-yellow-400"
         >
-          <motion.span
-            animate={{ rotate: [0, 15, -15, 0] }}
-            transition={{ duration: 1, repeat: Infinity }}
-            className="mr-2"
+          <motion.p
+            initial={{ x: -10 }}
+            animate={{ x: 0 }}
+            className="text-yellow-800 dark:text-yellow-200 flex items-center"
           >
-            ⚠️
-          </motion.span>
-          Please select activities of the same type to compare metrics.
-        </motion.p>
-      </motion.div>
+            <span className="mr-6">⚠️</span>
+            Please select activities of the same type to compare metrics.
+          </motion.p>
+        </motion.div>
+      </AnimatePresence>
     );
   }
 
@@ -141,7 +119,7 @@ export default function ActivityComparison() {
       label: 'Duration',
       unit: 'min',
       icon: '⏱️',
-      color: '#10B981',
+      color: 'var(--color-green-400)',
       lightColor: '#D1FAE5',
       callback: (value: number) => value / 60,
     },
@@ -150,9 +128,9 @@ export default function ActivityComparison() {
       label: 'Average Speed',
       unit: 'km/h',
       icon: '⚡',
-      color: '#F59E0B',
+      color: 'var(--color-amber-400)',
       lightColor: '#FEF3C7',
-      callback: (value: number) => value,
+      callback: (value: number) => metersPerSecondToKmPerHour(value),
     },
   ];
 
@@ -160,20 +138,23 @@ export default function ActivityComparison() {
   const peakData = metricsToCompare.map((metric) => {
     return {
       ...metric,
-      value:
-        metric.callback((peakActivity[metric.key as keyof typeof peakActivity] as number) || 0),
+      value: metric.callback(
+        (peakActivity[metric.key as keyof typeof peakActivity] as number) || 0
+      ),
     };
   });
 
   const currentData = metricsToCompare.map((metric) => {
     return {
       ...metric,
-      value:
-        metric.callback((currentActivity[metric.key as keyof typeof currentActivity] as number) || 0),
+      value: metric.callback(
+        (currentActivity[
+          metric.key as keyof typeof currentActivity
+        ] as number) || 0
+      ),
     };
   });
 
-  // Find max value for scaling
   const maxValue = Math.max(
     ...peakData.map((d) => Number(d.value)),
     ...currentData.map((d) => Number(d.value))
@@ -188,6 +169,7 @@ export default function ActivityComparison() {
 
   return (
     <motion.div
+      ref={chartRef}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       className="mt-8"
@@ -208,7 +190,7 @@ export default function ActivityComparison() {
 
       {/* Chart */}
       <motion.div
-        ref={chartRef}
+        ref={scope}
         className="p-8 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-200 dark:border-gray-700 overflow-hidden chart-item"
         initial={{ opacity: 0, y: 20, scale: 0.9 }}
         whileInView={{ opacity: 1 }}
@@ -372,13 +354,13 @@ export default function ActivityComparison() {
           className="flex justify-center mt-6 space-x-8"
         >
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-blue-500 rounded"></div>
+            <div className="w-4 h-4 bg-pink-500 rounded"></div>
             <span className="text-sm text-gray-600 dark:text-gray-300">
               Peak Performance
             </span>
           </div>
           <div className="flex items-center space-x-2">
-            <div className="w-4 h-4 bg-blue-500 opacity-60 rounded"></div>
+            <div className="w-4 h-4 bg-pink-500 opacity-60 rounded"></div>
             <span className="text-sm text-gray-600 dark:text-gray-300">
               Current Level
             </span>
@@ -529,23 +511,11 @@ export default function ActivityComparison() {
       {/* Motivational footer */}
       <motion.div
         initial={{ opacity: 0 }}
-        animate={isInView ? { opacity: 1 } : {}}
+        whileInView={{ opacity: 1 }}
         transition={{ delay: 2.5, duration: 0.5 }}
         className="mt-8 text-center chart-item"
       >
-        <motion.div
-          animate={{
-            y: [0, -5, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-          className="inline-block text-2xl mb-2"
-        >
-          💪
-        </motion.div>
+        <div className="text-2xl mb-2">💪</div>
         <p className="text-gray-600 dark:text-gray-400 italic">
           &quot;Every comeback starts with a single step forward&quot;
         </p>

@@ -21,23 +21,33 @@ export default async function Home() {
           <Logo />
         </div>
         <div className="lg:flex gap-16">
-          <p className="mb-6 lg:mb-0 text-lg text-pink-100">
+          <p className="mb-6 lg:mb-0 text-lg text-gray-100 max-w-xl">
             Compare your peak to your current performance and determine target
             metrics for improvement. This application will allow you to peruse
             your Garmin data to compare past and current activities.
           </p>
-          <Card>
-            <ol className="list-outside list-decimal font-mono text-base">
-              <li className="mb-2 tracking-[-.01em]">
-                Choose a record of an activity recorded on your Garmin device
-                with metrics that youu wish to match or exceed. You will need to
-                know the type of activity and the date.
-              </li>
-              <li className="tracking-[-.01em]">
-                Determine target metrics for improvement
-              </li>
-            </ol>
-          </Card>
+          <div
+            className="max-w-2xl"
+            style={
+              {
+                '--gradient-start': 'var(--color-purple-200)',
+                '--gradient-end': 'var(--color-pink-200)',
+              } as React.CSSProperties
+            }
+          >
+            <Card>
+              <ol className="list-outside list-decimal font-mono text-base">
+                <li className="mb-2 tracking-[-.01em]">
+                  Choose a record of an activity recorded on your Garmin device
+                  with metrics that youu wish to match or exceed. You will need
+                  to know the type of activity and the date.
+                </li>
+                <li className="tracking-[-.01em]">
+                  Determine target metrics for improvement
+                </li>
+              </ol>
+            </Card>
+          </div>
         </div>
 
         {data && data.length > 0 ? (
@@ -57,7 +67,7 @@ export default async function Home() {
 
             <div className="flex flex-col gap-4 mb-8 mt-12">
               <h2 className="text-lg font-semibold">Recent Activities</h2>
-              <ul className="grid sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <ul className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                 {data.map((activity) => {
                   const { activityId } = activity;
                   return (
@@ -73,7 +83,7 @@ export default async function Home() {
           <p className="text-red-500">No data available.</p>
         )}
       </main>
-      {/* Footer section */}
+      {/* Footer section TODO? */}
     </div>
   );
 }
