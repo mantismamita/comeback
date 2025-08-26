@@ -6,9 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import {
   roundToKm,
   formatNumber,
-  roundToHoursMinutes,
 } from '../../utils/units';
-import { form } from "framer-motion/m";
 
 export default function ActivityComparison() {
   const { peakActivity, currentActivity } = useActivities();
