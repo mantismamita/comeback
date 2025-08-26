@@ -29,6 +29,7 @@ export default function ActivityInteraction({
     setIsLoading(true);
     try {
       const response = await submitActivity(typeKey, date);
+      console.log('Activity found:', response);
       if (response.success && response.results?.length) {
         setSelectedActivity(response.results[0]);
       } else {
@@ -39,7 +40,8 @@ export default function ActivityInteraction({
         setSelectedActivity(null); // Reset
       }
     } catch (error) {
-      console.error('Error submitting activity:', error);
+      // TODO: Add context for error modal or Card
+      console.warn('Error submitting activity:', error);
     } finally {
       setIsLoading(false);
     }

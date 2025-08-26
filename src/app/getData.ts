@@ -4,6 +4,7 @@ import { fileURLToPath } from 'url';
 import path, { dirname } from 'node:path';
 import { readFileSync, existsSync } from 'node:fs';
 import type { Activity } from '@/types/Activity';
+import { isSameDay } from '@/utils/date';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -33,11 +34,10 @@ export async function getDateActivity(
   activityDate: string
 ) {
   const jsonData: Activity[] = await getData();
-  const simpleDate = (date: string) => date.split(' ')[0]; // Format to YYYY-MM-DD
 
   return jsonData.filter(
     (activity) =>
-      simpleDate(activity.startTimeLocal) === activityDate &&
+      isSameDay(activity.startTimeLocal, activityDate) &&
       activity.activityType.typeKey === activityType
   );
 }

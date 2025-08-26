@@ -71,6 +71,19 @@ body {
   animation: borderGlowMove 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.activity-border {
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(--activity-border, var(--color-gray-500));
+  transition: border-color box-shadow 0.4s;
+  box-shadow: 0 0 0 var(--foreground);
+  filter: saturate(1.5) brightness(1.1);
+}
+
+.activity-border:hover {
+  box-shadow: 0 0 0.75rem var(--activity-border);
+}
+
 @keyframes borderGlowMove {
   0% {
     background-position: 0% 50%;

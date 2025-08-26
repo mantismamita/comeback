@@ -19,3 +19,7 @@ export function formatNumber(value: number | string, decimals = 1): string {
   }
   return (Number(value)).toFixed(decimals);
 }
+
+export function metersPerSecondToKmPerHour(metersPerSecond: number): number {
+  return (metersPerSecond * 3.6).toFixed(2) as unknown as number;
+}
