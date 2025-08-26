@@ -10,3 +10,7 @@ export function formatDate(dateString: string, locale= 'fr-FR', dateFormat = yea
   const date = new Date(dateString);
   return date.toLocaleDateString(locale, dateFormat);
 }
+
+export function formatDateToInput(dateObj: Date): string {
+  return dateObj.toISOString().split("T")[0];
+}

@@ -1,19 +1,20 @@
 import { Activity as TypeActivity } from '@/types/Activity';
 import Activity from './Activity';
+import Card from './Card';
 
 export default function SelectedActivityDisplay({
   activity,
-  title,
+  title = '',
   onClose,
 }: {
   activity: TypeActivity;
-  title: string;
+  title?: string;
   onClose: () => void;
 }) {
   if (!activity?.activityName) return null;
 
   return (
-    <div className="relative mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg shadow">
+    <Card>
       <button
         type="button"
         onClick={onClose}
@@ -26,6 +27,6 @@ export default function SelectedActivityDisplay({
         {title}
       </h2>
       <Activity activity={activity} />
-    </div>
+    </Card>
   );
 }

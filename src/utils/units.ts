@@ -11,3 +11,11 @@ export function roundToHoursMinutes(seconds: number): string {
   }
   return `${hours}h ${minutes}m`;
 }
+
+export function formatNumber(value: number | string, decimals = 1): string {
+  if (typeof Number(value) !== 'number' || isNaN(Number(value))) {
+    console.error('Invalid number:', value);
+    return '1.0'; // to prevent 0 division
+  }
+  return (Number(value)).toFixed(decimals);
+}

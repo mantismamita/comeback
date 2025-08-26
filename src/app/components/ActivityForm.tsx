@@ -2,13 +2,14 @@
 import { useState, useRef, useEffect } from 'react';
 import { textToEmoji, typeMap } from '@/utils/activityTypes';
 import type { Activity } from '@/types/Activity';
+import { formatDateToInput } from '@/utils/date';
 
 export default function ActivityForm({
   selectedActivity,
-  onActivityFound,
+  onActivityFoundAction,
 }: {
   selectedActivity: Pick<Activity, 'activityType'> | null;
-  onActivityFound: (
+  onActivityFoundAction: (
     activityType: Activity['activityType']['typeKey'],
     date: string
   ) => Promise<void>;
@@ -50,7 +51,7 @@ export default function ActivityForm({
       } else if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
 
-        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
+        await onActivityFoundAction(selectedType, activityDate); // TODO handle errors in form
 
         setOpen(false);
         e.preventDefault();
@@ -75,11 +76,11 @@ export default function ActivityForm({
 
   return (
     <form
-      className="activity-form flex flex-wrap gap-6"
+      className="activity-form flex lg:flex-nowrap gap-6"
       onSubmit={async (event) => {
         event.preventDefault();
 
-        await onActivityFound(selectedType, activityDate); // TODO handle errors in form
+        await onActivityFoundAction(selectedType, activityDate); // TODO handle errors in form
       }}
     >
       <div className="form-group w-1/3">
@@ -179,6 +180,7 @@ export default function ActivityForm({
         </label>
         <input
           type="date"
+          max={formatDateToInput(new Date())}
           id="activity-date"
           name="activityDate"
           className="block w-full rounded-md border border-gray-300 bg-white py-2 px-3 text-gray-900 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
@@ -192,9 +194,9 @@ export default function ActivityForm({
       </div>
 
       <input type="hidden" name="activityType" value={selectedType} />
-      <div className="form-group w-full">
+      <div className="form-group self-end w-1/3">
         <button
-          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
+          className="bg-purple-600 hover:bg-pink-600 text-white px-4 py-2 rounded-md transition-colors duration-300"
           type="submit"
         >
           Save Activity

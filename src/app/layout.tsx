@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import SVGSprite from './components/SVGSprite';
+import { ActivitiesProvider } from './context/ActivitiesContext';
+
 import './globals.css';
 
 const geistSans = Geist({
@@ -29,7 +31,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <SVGSprite />
-        {children}
+        <ActivitiesProvider>{children}</ActivitiesProvider>
       </body>
     </html>
   );
